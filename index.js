@@ -13,12 +13,15 @@ app.use(express.json());
 
 const verifyJWT = (req, res, next) => {
     const authHeader = req.headers.authorization;
+    console.log(authHeader);
     if (!authHeader) {
         return res.status(401).send({ message: "Unauthorized Access" })
     }
     const token = authHeader.split(' ')[1];
+    console.log(token);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
         if (err) {
+            console.log(err);
             return res.status(403).send({ message: "Forbidden Access" })
         }
         req.decoded = decoded;
@@ -81,26 +84,26 @@ async function run() {
         })
 
         //get single user
-        app.get('/user/:email',async(req,res) => {
+        app.get('/user/:email', async (req, res) => {
             const email = req.params.email;
             console.log(email);
-            const query = {email:email};
+            const query = { email: email };
             const user = await userCollection.findOne(query);
-            console.log("user",user);
+            console.log("user", user);
             res.send(user);
         })
 
         //update profile
-        app.put('/user/updateProfile/:email', verifyJWT, async (req, res) => {
+        app.put('/user/updateProfile/:email', verifyJWT, async (reqres) => {
             const email = req.params.email;
             console.log(email);
             const userInformation = req.body;
             console.log(userInformation);
             const filter = { email: email };
             const updatedDoc = {
-                $set: { 
-                    education : userInformation.education,
-                    location : userInformation.location,
+                $set: {
+                    education: userInformation.education,
+                    location: userInformation.location,
                     phone: userInformation.phone,
                     linkedIn: userInformation.linkedIn
                 }
