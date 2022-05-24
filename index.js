@@ -8,27 +8,26 @@ const app = express();
 
 
 const port = process.env.PORT || 5000;
-const corsConfig = {
-    origin: '*',
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
-}
+// const corsConfig = {
+//     origin: '*',
+//     credentials: true,
+//     methods: ['GET', 'POST', 'PUT', 'DELETE']
+// }
 
-// app.use(cors());
+app.use(cors());
 app.use(express.json());
-app.use(cors(corsConfig))
-app.options("*", cors(corsConfig))
-app.use(express.json())
-app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*")
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,authorization")
-    next()
-})
+// app.use(cors(corsConfig))
+// app.options("*", cors(corsConfig))
+// app.use(express.json())
+// app.use(function (req, res, next) {
+//     res.header("Access-Control-Allow-Origin", "*")
+//     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept,authorization")
+//     next()
+// })
 
 
 const verifyJWT = (req, res, next) => {
     const authHeader = req.headers.authorization;
-    console.log(authHeader);
     if (!authHeader) {
         return res.status(401).send({ message: "Unauthorized Access" })
     }
@@ -99,7 +98,7 @@ async function run() {
         })
 
         //get single user
-        app.get('/user/:email', async (req, res) => {
+        app.get('/user/:email',verifyJWT, async (req, res) => {
             const email = req.params.email;
             console.log(email);
             const query = { email: email };
@@ -109,7 +108,7 @@ async function run() {
         })
 
         //update profile
-        app.put('/user/updateProfile/:email', verifyJWT, async (reqres) => {
+        app.put('/user/updateProfile/:email',verifyJWT, async (req,res) => {
             const email = req.params.email;
             console.log(email);
             const userInformation = req.body;
@@ -130,7 +129,7 @@ async function run() {
 
 
         //get all users
-        app.get('/user', verifyJWT, async (req, res) => {
+        app.get('/user', async (req, res) => {
             const users = await userCollection.find({}).toArray();
             res.send(users);
         })
