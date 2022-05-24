@@ -39,6 +39,8 @@ async function run() {
             res.send("Tools factory server connected to MongoDB")
         })
 
+
+
         //insert or update user
         app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
@@ -54,20 +56,28 @@ async function run() {
         })
         
         //add admin role
-        app.put('/user/admin/:email', async (req, res) => {
+        app.put('/user/admin/:email',verifyJWT, async (req, res) => {
             const email = req.params.email;
-            const filter = { email: email };
-            const updatedDoc = {
-                $set: {role : 'admin'},
-            };
-            const result = await userCollection.updateOne(filter, updatedDoc);
-            res.send(result);
+            const adminRequester = req.decoded.email;
+            const adminQuery = {email : adminRequester};
+            const adminRequesterAccount = await userCollection.findOne(adminQuery);
+            if(adminRequesterAccount.role === 'admin'){
+                const filter = { email: email };
+                const updatedDoc = {
+                    $set: {role : 'admin'},
+                };
+                const result = await userCollection.updateOne(filter, updatedDoc);
+                res.send(result);
+            }
+            else{
+                return res.status(403).send({message : 'Forbidden Access! Not Admin'})
+            }
+
         })
 
         //get all users
         app.get('/user', verifyJWT, async (req, res) => {
             const users = await userCollection.find({}).toArray();
-            console.log(users);
             res.send(users);
         })
 
