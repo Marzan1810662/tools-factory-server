@@ -39,7 +39,13 @@ async function run() {
             res.send("Tools factory server connected to MongoDB")
         })
 
-
+        app.get('/admin/:email', async(req,res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({email:email});
+            console.log(user);
+            const isAdmin = user.role === 'admin';
+            res.send({admin : isAdmin});
+        })
 
         //insert or update user
         app.put('/user/:email', async (req, res) => {
