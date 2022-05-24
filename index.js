@@ -52,6 +52,25 @@ async function run() {
             const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
             res.send({ result, token });
         })
+        
+        //add admin role
+        app.put('/user/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updatedDoc = {
+                $set: {role : 'admin'},
+            };
+            const result = await userCollection.updateOne(filter, updatedDoc);
+            res.send(result);
+        })
+
+        //get all users
+        app.get('/user', verifyJWT, async (req, res) => {
+            const users = await userCollection.find({}).toArray();
+            console.log(users);
+            res.send(users);
+        })
+
     }
     finally { }
 }
