@@ -39,12 +39,12 @@ async function run() {
             res.send("Tools factory server connected to MongoDB")
         })
 
-        app.get('/admin/:email', async(req,res) => {
+        //check admin role
+        app.get('/admin/:email', async (req, res) => {
             const email = req.params.email;
-            const user = await userCollection.findOne({email:email});
-            console.log(user);
+            const user = await userCollection.findOne({ email: email });
             const isAdmin = user.role === 'admin';
-            res.send({admin : isAdmin});
+            res.send({ admin: isAdmin });
         })
 
         //insert or update user
@@ -60,26 +60,56 @@ async function run() {
             const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
             res.send({ result, token });
         })
-        
+
         //add admin role
-        app.put('/user/admin/:email',verifyJWT, async (req, res) => {
+        app.put('/user/admin/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             const adminRequester = req.decoded.email;
-            const adminQuery = {email : adminRequester};
+            const adminQuery = { email: adminRequester };
             const adminRequesterAccount = await userCollection.findOne(adminQuery);
-            if(adminRequesterAccount.role === 'admin'){
+            if (adminRequesterAccount.role === 'admin') {
                 const filter = { email: email };
                 const updatedDoc = {
-                    $set: {role : 'admin'},
+                    $set: { role: 'admin' },
                 };
                 const result = await userCollection.updateOne(filter, updatedDoc);
                 res.send(result);
             }
-            else{
-                return res.status(403).send({message : 'Forbidden Access! Not Admin'})
+            else {
+                return res.status(403).send({ message: 'Forbidden Access! Not Admin' })
             }
+        })
+
+        //get single user
+        app.get('/user/:email',async(req,res) => {
+            const email = req.params.email;
+            console.log(email);
+            const query = {email:email};
+            const user = await userCollection.findOne(query);
+            console.log("user",user);
+            res.send(user);
+        })
+
+        //update profile
+        app.put('/user/updateProfile/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            console.log(email);
+            const userInformation = req.body;
+            console.log(userInformation);
+            const filter = { email: email };
+            const updatedDoc = {
+                $set: { 
+                    education : userInformation.education,
+                    location : userInformation.location,
+                    phone: userInformation.phone,
+                    linkedIn: userInformation.linkedIn
+                }
+            };
+            const result = await userCollection.updateOne(filter, updatedDoc);
+            res.send(result);
 
         })
+
 
         //get all users
         app.get('/user', verifyJWT, async (req, res) => {
