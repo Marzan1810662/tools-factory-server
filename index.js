@@ -55,7 +55,9 @@ async function run() {
         const reviewCollection = client.db('tools-factory').collection('reviews');
 
         app.get('/tool', async (req, res) => {
-            const tools = await toolCollection.find({}).sort({_id:-1}).toArray();
+            const limit = parseInt(req.query.tools);
+            console.log(limit);
+            const tools = await toolCollection.find({}).limit(limit).sort({_id:-1}).toArray();
             res.send(tools);
         })
 
