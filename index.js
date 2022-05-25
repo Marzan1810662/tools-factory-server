@@ -51,11 +51,21 @@ async function run() {
     try {
         await client.connect();
         const userCollection = client.db('tools-factory').collection('users');
+        const toolCollection = client.db('tools-factory').collection('tools');
         const reviewCollection = client.db('tools-factory').collection('reviews');
 
-        app.get('/tools', async (req, res) => {
+        app.get('/tool', async (req, res) => {
             res.send("Tools factory server connected to MongoDB")
         })
+
+        //post to add tool
+        app.post('/tool',verifyJWT,async(req,res) => {
+            const newTool = req.body;
+            const result = await toolCollection.insertOne(newTool);
+            console.log(result);
+            res.send(result);
+        })
+
 
         //check admin role
         app.get('/admin/:email', async (req, res) => {
