@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
@@ -54,6 +54,7 @@ async function run() {
         const toolCollection = client.db('tools-factory').collection('tools');
         const reviewCollection = client.db('tools-factory').collection('reviews');
 
+        //get all tools or 6 tools
         app.get('/tool', async (req, res) => {
             const limit = parseInt(req.query.tools);
             console.log(limit);
@@ -72,6 +73,15 @@ async function run() {
             const newTool = req.body;
             const result = await toolCollection.insertOne(newTool);
             console.log(result);
+            res.send(result);
+        })
+
+        //delete tool
+        app.delete('/tool/:id',verifyJWT,async(req,res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            console.log(query);
+            const result = await toolCollection.deleteOne(query);
             res.send(result);
         })
 
