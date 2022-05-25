@@ -57,12 +57,18 @@ async function run() {
         app.get('/tool', async (req, res) => {
             const limit = parseInt(req.query.tools);
             console.log(limit);
-            const tools = await toolCollection.find({}).limit(limit).sort({_id:-1}).toArray();
-            res.send(tools);
+            if (limit === 'NaN') {
+                const tools = await toolCollection.find({}).sort({ _id: -1 }).toArray();
+                res.send(tools)
+            } else {
+                const tools = await toolCollection.find({}).limit(limit).sort({ _id: -1 }).toArray();
+                res.send(tools)
+            }
+            ;
         })
 
         //post to add tool
-        app.post('/tool',verifyJWT,async(req,res) => {
+        app.post('/tool', verifyJWT, async (req, res) => {
             const newTool = req.body;
             const result = await toolCollection.insertOne(newTool);
             console.log(result);
@@ -112,7 +118,7 @@ async function run() {
         })
 
         //get single user
-        app.get('/user/:email',verifyJWT, async (req, res) => {
+        app.get('/user/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             console.log(email);
             const query = { email: email };
@@ -122,7 +128,7 @@ async function run() {
         })
 
         //update profile
-        app.put('/user/updateProfile/:email',verifyJWT, async (req,res) => {
+        app.put('/user/updateProfile/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             console.log(email);
             const userInformation = req.body;
@@ -148,7 +154,7 @@ async function run() {
         })
 
         //add review
-        app.post('/review',verifyJWT,async(req,res) => {
+        app.post('/review', verifyJWT, async (req, res) => {
             const review = req.body;
             const result = await reviewCollection.insertOne(review);
             console.log(result);
@@ -157,7 +163,7 @@ async function run() {
 
         //get all reviews
         app.get('/review', async (req, res) => {
-            const reviews = await reviewCollection.find({}).sort({_id:-1}).toArray();
+            const reviews = await reviewCollection.find({}).sort({ _id: -1 }).toArray();
             res.send(reviews);
         })
 
