@@ -53,6 +53,7 @@ async function run() {
         const userCollection = client.db('tools-factory').collection('users');
         const toolCollection = client.db('tools-factory').collection('tools');
         const reviewCollection = client.db('tools-factory').collection('reviews');
+        const orderCollection = client.db('tools-factory').collection('orders');
 
         //get all tools or 6 tools
         app.get('/tool', async (req, res) => {
@@ -65,7 +66,6 @@ async function run() {
                 const tools = await toolCollection.find({}).limit(limit).sort({ _id: -1 }).toArray();
                 res.send(tools)
             }
-            ;
         })
 
         //get single tool
@@ -93,6 +93,13 @@ async function run() {
             res.send(result);
         })
 
+        //insert order
+        app.post('/order', verifyJWT, async (req, res) => {
+            const newOrder = req.body;
+            const result = await orderCollection.insertOne(newOrder);
+            console.log(result);
+            res.send(result);
+        })
 
         //check admin role
         app.get('/admin/:email', async (req, res) => {
