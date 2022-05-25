@@ -142,6 +142,12 @@ async function run() {
             res.send(result);
         })
 
+        //get all reviews
+        app.get('/review', async (req, res) => {
+            const reviews = await reviewCollection.find({}).sort({_id:-1}).toArray();
+            res.send(reviews);
+        })
+
     }
     finally { }
 }
