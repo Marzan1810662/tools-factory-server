@@ -55,7 +55,8 @@ async function run() {
         const reviewCollection = client.db('tools-factory').collection('reviews');
 
         app.get('/tool', async (req, res) => {
-            res.send("Tools factory server connected to MongoDB")
+            const tools = await toolCollection.find({}).sort({_id:-1}).toArray();
+            res.send(tools);
         })
 
         //post to add tool
