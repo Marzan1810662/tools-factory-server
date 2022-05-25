@@ -51,6 +51,7 @@ async function run() {
     try {
         await client.connect();
         const userCollection = client.db('tools-factory').collection('users');
+        const reviewCollection = client.db('tools-factory').collection('reviews');
 
         app.get('/tools', async (req, res) => {
             res.send("Tools factory server connected to MongoDB")
@@ -74,7 +75,7 @@ async function run() {
                 $set: user,
             };
             const result = await userCollection.updateOne(filter, updatedDoc, options);
-            const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1d' });
             res.send({ result, token });
         })
 
@@ -127,11 +128,18 @@ async function run() {
 
         })
 
-
         //get all users
         app.get('/user', async (req, res) => {
             const users = await userCollection.find({}).toArray();
             res.send(users);
+        })
+
+        //add review
+        app.post('/review',verifyJWT,async(req,res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            console.log(result);
+            res.send(result);
         })
 
     }
