@@ -68,6 +68,14 @@ async function run() {
             ;
         })
 
+        //get single tool
+        app.get('/tool/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const tool = await toolCollection.findOne(query);
+            res.send(tool);
+        })
+
         //post to add tool
         app.post('/tool', verifyJWT, async (req, res) => {
             const newTool = req.body;
@@ -77,9 +85,9 @@ async function run() {
         })
 
         //delete tool
-        app.delete('/tool/:id',verifyJWT,async(req,res) => {
+        app.delete('/tool/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
-            const query = {_id: ObjectId(id)};
+            const query = { _id: ObjectId(id) };
             console.log(query);
             const result = await toolCollection.deleteOne(query);
             res.send(result);
