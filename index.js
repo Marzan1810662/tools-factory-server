@@ -99,6 +99,14 @@ async function run() {
             res.send(orders);
         })
 
+        //get user specific orders
+        app.get('/order/:email',async(req,res) =>{
+            const email = req.params.email;
+            const query = {userEmail :email};
+            const orders = await orderCollection.find(query).toArray();
+            res.send(orders);
+        })
+
         //insert order
         app.post('/order', verifyJWT, async (req, res) => {
             const newOrder = req.body;
