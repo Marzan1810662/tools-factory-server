@@ -32,7 +32,6 @@ const verifyJWT = (req, res, next) => {
         return res.status(401).send({ message: "Unauthorized Access" })
     }
     const token = authHeader.split(' ')[1];
-    console.log(token);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
         if (err) {
             console.log(err);
@@ -94,17 +93,24 @@ async function run() {
         })
 
         //get all orders
-        app.get('/order', async (req, res) => {
+        app.get('/order', verifyJWT, async (req, res) => {
             const orders = await orderCollection.find({}).toArray();
             res.send(orders);
         })
 
         //get user specific orders
-        app.get('/order/:email',async(req,res) =>{
+        app.get('/order/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
-            const query = {userEmail :email};
-            const orders = await orderCollection.find(query).toArray();
-            res.send(orders);
+            const decodedEmail = req.decoded.email;
+            if(decodedEmail ===  email){
+                const query = { userEmail: email };
+                const orders = await orderCollection.find(query).toArray();
+                res.send(orders);
+            }
+            else{
+                res.status(403).send({message: 'Forbidden Access'})
+            }
+            
         })
 
         //insert order
@@ -124,9 +130,9 @@ async function run() {
             console.log(filter);
             const updateDoc = {
                 $set: status
-              };
-              const result = await orderCollection.updateOne(filter, updateDoc);
-              res.send(result);
+            };
+            const result = await orderCollection.updateOne(filter, updateDoc);
+            res.send(result);
         })
 
         //delete order
