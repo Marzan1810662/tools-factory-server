@@ -3,6 +3,7 @@ const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 
@@ -55,8 +56,8 @@ async function run() {
         const orderCollection = client.db('tools-factory').collection('orders');
 
         app.post('/create-payment-intent', verifyJWT, async (req, res) => {
-            const order = req.body;
-            const price = order.priceAmount;
+            const service = req.body;
+            const price = service.price;
             const amount = price * 100;
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amount,
@@ -128,7 +129,6 @@ async function run() {
 
         //get single order
         app.get('/order/:id', async (req, res) => {
-            console.log('bla');
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const order = await orderCollection.findOne(query);
