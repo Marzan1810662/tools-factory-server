@@ -99,7 +99,7 @@ async function run() {
         })
 
         //get user specific orders
-        app.get('/order/:email', verifyJWT, async (req, res) => {
+        app.get('/orders/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             const decodedEmail = req.decoded.email;
             if(decodedEmail ===  email){
@@ -111,6 +111,15 @@ async function run() {
                 res.status(403).send({message: 'Forbidden Access'})
             }
             
+        })
+
+        //get single order
+        app.get('/order/:id', async (req, res) => {
+            console.log('bla');
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const order = await orderCollection.findOne(query);
+            res.send(order);
         })
 
         //insert order
