@@ -93,6 +93,12 @@ async function run() {
             res.send(result);
         })
 
+        //get all orders
+        app.get('/order', async (req, res) => {
+            const orders = await orderCollection.find({}).toArray();
+            res.send(orders);
+        })
+
         //insert order
         app.post('/order', verifyJWT, async (req, res) => {
             const newOrder = req.body;
